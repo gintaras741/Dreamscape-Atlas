@@ -26,4 +26,21 @@ public class AuthController : BaseController
 
         return Ok(response);
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var response = await _authService.LoginAsync(request);
+        if (response == null)
+        {
+            return Unauthorized("Invalid login attempt.");
+        }
+
+        return Ok(response);
+    }
 }

@@ -4,6 +4,13 @@
 
 Dreamscape Atlas is a comprehensive web application specifically designed for **Dungeons & Dragons (D&D)** players, Dungeon Masters (DMs), and homebrew creators to build, organize, and explore their fictional worlds. Whether you're crafting a sprawling fantasy realm, a detailed campaign setting, or a collection of one-shot adventures, Dreamscape Atlas provides the tools to bring your D&D visions to life. It acts as a central repository for all your lore, characters, locations, timelines, magic items, and more, allowing for intricate connections and easy navigation within your created narratives and campaigns.
 
+## Project Status
+
+### 🚧 Work in Progress 🚧
+
+This project is currently under active development and has not yet reached a working state. Key features are being implemented, and the application is subject to rapid changes.
+
+
 ## Key Features
 
 -   **Hierarchical World Organization:** Structure your D&D world with interconnected articles for locations (cities, dungeons, wilderness), characters (NPCs, factions), organizations, magic items, spells, monsters, and more.
@@ -57,8 +64,8 @@ To get a local copy up and running, follow these simple steps.
 1.  **Clone the repository:**
 
     ```
-    git clone
-    cd
+    git clone https://github.com/gintaras741/Dreamscape-Atlas/
+    cd Dreamscape-Atlas
 
     ```
 

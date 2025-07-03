@@ -1,12 +1,20 @@
 using CampaignManager;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
+using CampaignManager.Models;
 
 public class AuthController : BaseController
 {
     private readonly IAuthService _authService;
+    private readonly IConfiguration _configuration;
+    private readonly UserManager<User> _userManager;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IConfiguration configuration, UserManager<User> userManager)
     {
+        _configuration = configuration;
+        _userManager = userManager;
         _authService = authService;
     }
 
@@ -24,7 +32,31 @@ public class AuthController : BaseController
             return BadRequest("Registration failed.");
         }
 
-        return Ok(response);
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var token = _authService.GenerateJwtToken(user);
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+        var expirationHours = jwtSettings.GetValue<int>("ExpirationHours");
+
+        Response.Cookies.Append("jwt_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddHours(expirationHours)
+        });
+
+        return Ok(new
+        {
+            userId = response.UserId,
+            email = response.Email,
+            firstName = response.FirstName,
+            lastName = response.LastName,
+        });
     }
 
     [HttpPost("login")]
@@ -41,6 +73,43 @@ public class AuthController : BaseController
             return Unauthorized("Invalid login attempt.");
         }
 
-        return Ok(response);
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var token = _authService.GenerateJwtToken(user);
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+        var expirationHours = jwtSettings.GetValue<int>("ExpirationHours");
+
+        Response.Cookies.Append("jwt_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddHours(expirationHours)
+        });
+
+        return Ok(new
+        {
+            userId = response.UserId,
+            email = response.Email,
+            firstName = response.FirstName,
+            lastName = response.LastName,
+        });
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("jwt_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Lax
+        });
+
+        return Ok(new { message = "Logged out successfully." });
     }
 }

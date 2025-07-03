@@ -12,6 +12,7 @@ namespace CampaignManager
     {
         Task<AuthResponse?> RegisterAsync(RegisterRequest request);
         Task<AuthResponse?> LoginAsync(LoginRequest request);
+        string GenerateJwtToken(User user);
     }
 
     public class AuthService : IAuthService
@@ -42,11 +43,8 @@ namespace CampaignManager
             if (result.Succeeded)
             {
                 //assign roles when needed
-
-                var token = GenerateJwtToken(user);
                 return new AuthResponse
                 {
-                    Token = token,
                     UserId = user.Id,
                     Email = user.Email,
                     FirstName = user.FirstName,
@@ -74,10 +72,8 @@ namespace CampaignManager
             var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user);
                 return new AuthResponse
                 {
-                    Token = token,
                     UserId = user.Id,
                     Email = user.Email,
                     FirstName = user.FirstName,
@@ -87,7 +83,7 @@ namespace CampaignManager
             return null;
         }
 
-        private string GenerateJwtToken(User user)
+        public string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret not configured"));

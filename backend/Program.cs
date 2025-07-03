@@ -52,6 +52,15 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["jwt_token"];
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
